@@ -1,4 +1,4 @@
-﻿Data Engineering challenge:
+## Data Engineering challenge:
 Insight Data Engineering Fellows Program 
 The coding challenge /Electronic Data Gathering, Analysis and Retrieval (EDGAR) 
 Solution approach
@@ -11,14 +11,15 @@ Advanced approach
 Comparison and big–O	
 Conclusion
 
-Introduction
+## Introduction
 The challenge basically asks to count total number of financial documents retrieved by each IP during single visit. 
 The program is written in Python3. Please make sure Python3 is installed for the program to run properly
 For the purpose of testing our code we downloaded the log file for Dec/10th/2004. Which has a size of 41 MB. From https://www.sec.gov/dera/data/edgar-log-file-data-set.html . 
 Loading components and Getting the data from log and txt files
 First datetime and csv components are called. We avoid using Pandas to make sure the programs scale up efficiently. The code gets a file called “log.csv” where the data is stored and a file called “inactivity_period.txt” where the time for inactivity in seconds are given. 
 
-#####################################################################
+################################################################
+
 from datetime import datetime , timedelta ## We need these to count time correctly
 startTime = datetime.now()
 import csv ## Avoid Pandas for big data 
@@ -28,17 +29,19 @@ reader = csv.reader(file) ## Reading the file in csv format
 header = next(reader) ## Header of the file 
 f = open('./input/inactivity_period.txt','r') ## Reading inactivity time
 InActive=int(f.read())
+
 ################################################################
-Basic approach
+## Basic approach
 In basic approach we are dealing with each data entry separately and compare it to the subsequent entries. 
-##############################################################################
+################################################################
+
 Data collection
 data=[]   ## define varible data
 for row in reader:
     time = row[1] + " " + row[2]  ## Combining Time and date 
     My_time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S') ## Changing string to date 
     FileCount=1  ## Default for file visit for each session
-    data.append([row[0] , My_time, My_time,FileCount, row[4] , row[5] , row[6]])  ## Creating 										##our data set
+    data.append([row[0] , My_time, My_time,FileCount, row[4] , row[5] , row[6]])  ## Creating our data set
 DataLength=len(data)
 InActive=InActive+1		## we add one to use smaller comparison 
 f= open("../output/Long_Ver_Out.txt","w+") ## Open an output file
@@ -53,19 +56,19 @@ for i in range (DataLength):
                 Break
         elif int((data[j][2] - data[i][2]).seconds ) > InActive:
             break                                ## don't compare when time difference has reached
-
-
     if Flag == 0:
         dt=int((data[i][2]-data[i][1]).seconds )+1	 ## time difference inclusive
         print(data[i][0],data[i][1].strftime("%Y-%m-%d %H:%M:%S"),data[i][2].strftime("%Y-%m-%d %H:%M:%S"),dt,data[i][3],sep=",", file=f)	 ## write file with no correspondence ahead
 f.close()                           ## Print the result and close the file
 print(datetime.now() - startTime)   
-############################################################################
-
-Advanced approach 
-This approach is better when we have data bigger than 1k and more than 1 access for each second. This approach is different that the basic approach through the way data compared and function called. In this approach the time for each entry is read first and the number of entries having same time are recorded in an array. Then elements of the array is called for comparison purpose. 
 #########################################################################
-## Data collection
+
+## Advanced approach 
+This approach is better when we have data bigger than 1k and more than 1 access for each second. This approach is different that the basic approach through the way data compared and function called. In this approach the time for each entry is read first and the number of entries having same time are recorded in an array. Then elements of the array is called for comparison purpose. 
+
+#########################################################################
+
+Data collection
 data=[]   ## define varible data
 for row in reader:
     time = row[1] + " " + row[2]  ## Combining Time and date 
@@ -73,7 +76,8 @@ for row in reader:
     FileCount=1  ## Default for file visit for each session
     Flag=0 ## Flag data to make sure we don't double count them
     data.append([row[0] , My_time, My_time,FileCount,Flag , row[4] , row[5] , row[6]])  ## Creating our data set
-## Time counter 
+
+Time counter 
 m=0 ## The very first entry is located in row 0
 n=len(data) ## Length of the data is the total number of entries
 My_array=[] ## Define an array to hold number of entries for each second
@@ -114,12 +118,12 @@ else:
     print ("Worning", lostFile, "'s lost")
 ###########################################################################
 
-Comparison and big – O
+## Comparison and big – O
 The advanced approach decreases the time required for the program run extensively. When both programs run on same input. While the basic code took 3:26:06.811366 (12366.8 seconds) the advanced code needed only 0:00:19.351307 (19.4 seconds). In other words the efficiency increase about 600 times!. However 
 The reason is the first method is comparing the time of each entry with following times to make sure if it repeats in future. This approach if not stopped through “break” command has n!  calls while looking up in index is a linear function. Another break function added to the basic approach at “elif” which decreased the required time from 3:26:06.811366 (12366.8 seconds)to 0:00:20.868073 (20.9 seconds).
 The same two code ran on Linux environment the advanced method required 7 seconds while the basic method required 8 seconds on average. In other words Linux proved 2-3 times more efficient running this specific code.
 
-Conclusion
+## Conclusion
 For bigger data it is important to find ways to decrease the computational cost to increase the efficiency. Here we showed one way of increasing efficiency. 
 
 
